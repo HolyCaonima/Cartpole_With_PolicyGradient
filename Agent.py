@@ -7,6 +7,9 @@ class PolicyBasedNaiveAg:
 
     def __init__(self, ActionSpace, StateSpace):
         self.sess = tf.Session()
+        self.Gamma = 0.97
+        self.StateSpace = StateSpace
+        self.ActionSpace = ActionSpace
         self.StateInput = tf.placeholder(tf.float32, shape=[None, StateSpace])
         self.AdvantageInput = tf.placeholder(tf.float32, shape=[None, 1])
         self.ActionInput = tf.placeholder(tf.float32, shape=[None, ActionSpace])
@@ -21,7 +24,7 @@ class PolicyBasedNaiveAg:
 
     def MakePolicy(self):
         FC_0 = tf.layers.dense(self.StateInput, units=100, activation=tf.nn.relu)
-        FC_1 = tf.layers.dense(FC_0, units=2, activation=None)
+        FC_1 = tf.layers.dense(FC_0, units=self.ActionSpace, activation=None)
         Out = tf.nn.softmax(FC_1)
         return Out
 
@@ -53,7 +56,7 @@ class PolicyBasedNaiveAg:
             # calculate discounted monte-carlo return
             for FutureTimeStep in range(FutureSteps):
                 FutureReward += Reward[TimeStep + FutureTimeStep][0] * DecreaseFactor
-                DecreaseFactor *= 0.97
+                DecreaseFactor *= self.Gamma
             
             EstimateReward = self.sess.run(self.ValueEst, feed_dict={self.StateInput:[State[TimeStep]]})[0][0]
             Advangets.append([FutureReward - EstimateReward])
