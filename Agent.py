@@ -19,11 +19,6 @@ class PolicyBasedNaiveAg:
         init = tf.global_variables_initializer()
         self.sess.run(init)
 
-    def Softmax(self, x):
-        Ex = np.exp(x - np.max(x))
-        Ret = Ex / Ex.sum()
-        return Ret
-
     def MakePolicy(self):
         FC_0 = tf.layers.dense(self.StateInput, units=100, activation=tf.nn.relu)
         FC_1 = tf.layers.dense(FC_0, units=2, activation=None)
